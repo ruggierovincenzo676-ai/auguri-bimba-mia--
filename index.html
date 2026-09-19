@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Per Elena ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d0204;
+            --card-bg: rgba(20, 5, 8, 0.75);
+            --red-primary: #d61c38;
+            --red-glow: rgba(214, 28, 56, 0.5);
+            --gold-accent: #ffd700;
+            --gold-glow: rgba(255, 215, 0, 0.4);
+            --text-white: #ffffff;
+            --text-sub: #f0e6e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .photo-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            filter: brightness(0.4);
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 100%;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0 10px 0;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: var(--red-primary);
+            text-shadow: 0 0 15px var(--red-glow), 0 0 2px var(--gold-accent);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: var(--gold-accent);
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), 0 0 15px rgba(214, 28, 56, 0.15);
+            text-align: center;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--gold-accent);
+            text-shadow: 0 0 5px var(--gold-glow);
+        }
+
+        .vinyl-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .vinyl-record {
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle, #111 30%, #333 31%, #111 32%, #222 50%, #111 70%);
+            border-radius: 50%;
+            border: 4px solid var(--gold-accent);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 12px var(--gold-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: spin 4s linear infinite;
+        }
+
+        .vinyl-record::before {
+            content: '🎵';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--red-primary);
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .song-title {
+            margin-top: 15px;
+            font-weight: bold;
+            color: var(--text-white);
+            font-size: 1.2rem;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: var(--gold-accent);
+            margin-top: 3px;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        .quiz-option:hover {
+            background: var(--red-primary);
+            border-color: var(--gold-accent);
+        }
+
+        .quiz-option.correct {
+            background: #28a745 !important;
+            border-color: #fff !important;
+        }
+
+        .quiz-option.wrong {
+            background: #dc3545 !important;
+        }
+
+        .photo-window {
+            height: 220px;
+            border: 2px dashed var(--gold-accent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(1px);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .photo-window-text {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--gold-accent);
+            border: 1px solid var(--gold-accent);
+        }
+
+        .letter-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-sub);
+            text-align: justify;
+            white-space: pre-line;
+        }
+
+        .poem-text {
+            text-align: center;
+            font-style: italic;
+            font-size: 1.25rem;
+            color: #ffffff;
+            border-left: 3px solid var(--gold-accent);
+            border-right: 3px solid var(--gold-accent);
+            padding: 15px 20px;
+            line-height: 1.8;
+        }
+
+        .poem-locked {
+            font-size: 1.1rem;
+            color: var(--gold-accent);
+            padding: 20px;
+            border: 1px dashed var(--gold-accent);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .unlock-animation {
+            animation: glowReveal 2s ease-in-out forwards;
+        }
+
+        @keyframes glowReveal {
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { box-shadow: 0 0 30px var(--gold-glow); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .interactive-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-card {
+            background: linear-gradient(135deg, var(--red-primary), #800a1c);
+            border: 1px solid var(--gold-accent);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px var(--red-glow);
+            transition: transform 0.2s;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .btn-card:hover {
+            transform: scale(1.03);
+        }
+
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .timer-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 5px;
+            border-radius: 12px;
+            border: 1px solid var(--gold-accent);
+        }
+
+        .timer-box .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--red-primary);
+            text-shadow: 0 0 8px var(--red-glow);
+        }
+
+        .timer-box .label {
+            font-size: 0.7rem;
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--gold-accent);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px var(--red-glow);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            color: var(--gold-accent);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gold-accent);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="photo-slideshow">
+        <div class="slide active" style="background-image: url('foto1.jpg');"></div>
+        <div class="slide" style="background-image: url('foto2.jpg');"></div>
+        <div class="slide" style="background-image: url('foto3.jpg');"></div>
+    </div>
+
+    <div class="container">
+        
+        <header>
+            <h1>Per Elena ❤️</h1>
+            <p>Il mio punto fermo, la mia felicità</p>
+        </header>
+
+        <div class="card">
+            <div class="vinyl-container">
+                <div class="vinyl-record"></div>
+                <div class="song-title">Die for You</div>
+                <div class="song-artist">The Weeknd • La nostra canzone 🎧</div>
+            </div>
+        </div>
+
+        <div class="card" id="quiz-card">
+            <h2>✨ Gioco di Coppia: Il Quiz ✨</h2>
+            <div id="quiz-container">
+                <p id="quiz-question" style="font-size: 1.1rem; margin-bottom: 15px; color: #fff;"></p>
+                <div id="quiz-options"></div>
+            </div>
+        </div>
+
+        <div class="photo-window">
+            <div class="photo-window-text">📸 I nostri ricordi sullo sfondo</div>
+        </div>
+
+        <div class="card">
+            <h2>💌 Per Te, Bimba Mia</h2>
+            <div class="letter-text">
+Elena, certi momenti restano impressi per sempre. Da quando sei entrata nella mia vita ogni giorno ha un colore diverso, più vivo, più bello. 
+
+Grazie per ogni risata, per ogni messaggio e per il modo unico che hai di farmi sentire speciale. Oggi è la tua giornata e voglio solo ricordarti quanto sei importante per me.
+
+Tanti auguri di buon compleanno, bimba mia. ❤️
+            </div>
+        </div>
+
+        <div class="interactive-btns">
+            <button class="btn-card" onclick="openModal('manco')">💭 Quanto ti manco?</button>
+            <button class="btn-card" onclick="openModal('sorriso')">😊 Ho bisogno di un sorriso</button>
+        </div>
+
+        <div class="card">
+            <h2>⏳ Ci conosciamo esattamente da...</h2>
+            <p style="font-size: 0.85rem; color: var(--gold-accent);">Dal 22 Agosto 2026, ore 11:57</p>
+            <div class="timer-grid">
+                <div class="timer-box"><div class="number" id="r-days">0</div><div class="label">Giorni</div></div>
+                <div class="timer-box"><div class="number" id="r-hours">00</div><div class="label">Ore</div></div>
+                <div class="timer-box"><div class="number" id="r-minutes">00</div><div class="label">Minuti</div></div>
+                <div class="timer-box"><div class="number" id="r-seconds">00</div><div class="label">Secondi</div></div>
+            </div>
+        </div>
+
+        <div class="card" style="border-color: var(--red-primary);">
+            <h2>🌙 Countdown a Mezzanotte</h2>
+            <div class="timer-grid">
+                <div class="timer-box"><div class="number" id="m-hours">00</div><div class="label">Ore</div></div>
+                <div class="timer-box"><div class="number" id="m-minutes">00</div><div class="label">Minuti</div></div>
+                <div class="timer-box"><div class="number" id="m-seconds">00</div><div class="label">Secondi</div></div>
+                <div class="timer-box"><div class="number" id="m-ms">00</div><div class="label">Centesimi</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <button class="btn-card" style="width: 100%; border-color: var(--gold-accent);" onclick="openModal('mezzanotte')">
+                🎁 Apri a Mezzanotte 🌙
+            </button>
+        </div>
+
+        <div class="card" id="poem-card">
+            <div class="poem-locked" id="poem-locked">
+                🔒 <i>La poesia esclusiva si sbloccherà a Mezzanotte...</i>
+            </div>
+            <div class="poem-text" id="poem-content" style="display: none;">
+"Tra mille sguardi ho scelto il tuo,
+tra mille storie la nostra.
+Ogni secondo insieme è un regalo
+e oggi festeggiamo te:
+il mio punto fermo, la mia felicità."
+            </div>
+        </div>
+
+        <footer>
+            Con tutto l'amore del mondo, Vincenzo ❤️
+        </footer>
+
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-text" style="font-size: 1.1rem; line-height: 1.6; color: #fff;"></div>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 4000);
+
+        const quizData = [
+            {
+                question: "1. In che giorno e a che ora ci siamo conosciuti ufficialmente?",
+                options: ["22 Agosto alle 11:57", "22 Agosto alle 12:38", "22 Agosto alle 15:23"],
+                correct: 0
+            },
+            {
+                question: "2. Qual è la cosa che mi fa sorridere di più quando sono con te?",
+                options: ["Quando fai la buffa o mi prendi in giro", "Il tuo modo di guardarmi", "Quando mi mandi i messaggi vocali", "Tutte le precedenti!"],
+                correct: 3
+            },
+            {
+                question: "3. Chi ha mandato il messaggio più lungo per primo?",
+                options: ["Tu, ovviamente!", "Io, non resistevo!", "Pari merito!"],
+                correct: 2
+            },
+            {
+                question: "4. Qual è il mio nickname preferito per te?",
+                options: ["Bimba / Bimba mia", "Piccola / Piccola mia", "Entrambi, dipende dal momento!"],
+                correct: 0
+            }
+        ];
+
+        let currentQuiz = 0;
+        function loadQuiz() {
+            const q = quizData[currentQuiz];
+            document.getElementById('quiz-question').innerText = q.question;
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(index, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(index, btn) {
+            const correctIndex = quizData[currentQuiz].correct;
+            if(index === correctIndex) {
+                btn.classList.add('correct');
+                setTimeout(() => {
+                    currentQuiz++;
+                    if(currentQuiz < quizData.length) {
+                        loadQuiz();
+                    } else {
+                        document.getElementById('quiz-container').innerHTML = "<p style='color:var(--gold-accent); font-size:1.2rem;'>🎉 Complimenti Bimba mia! Hai azzeccato tutte le risposte! ❤️</p>";
+                    }
+                }, 1000);
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+        loadQuiz();
+
+        const startDate = new Date(2026, 7, 22, 11, 57, 0);
+        function updateRelationshipTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                document.getElementById('r-days').innerText = days;
+                document.getElementById('r-hours').innerText = hours.toString().padStart(2, '0');
+                document.getElementById('r-minutes').innerText = minutes.toString().padStart(2, '0');
+                document.getElementById('r-seconds').innerText = seconds.toString().padStart(2, '0');
+            }
+        }
+        setInterval(updateRelationshipTimer, 1000);
+        updateRelationshipTimer();
+
+        let fireworksTriggered = false;
+
+        function unlockPoem() {
+            const lockedBox = document.getElementById('poem-locked');
+            const poemContent = document.getElementById('poem-content');
+            
+            if(lockedBox && poemContent) {
+                lockedBox.style.display = 'none';
+                poemContent.style.display = 'block';
+                poemContent.classList.add('unlock-animation');
+            }
+        }
+
+        function updateMidnightTimer() {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            const diff = midnight - now;
+
+            if (diff <= 0) {
+                document.getElementById('m-hours').innerText = '00';
+                document.getElementById('m-minutes').innerText = '00';
+                document.getElementById('m-seconds').innerText = '00';
+                document.getElementById('m-ms').innerText = '00';
+                
+                if(!fireworksTriggered) {
+                    triggerFireworks();
+                    unlockPoem();
+                    fireworksTriggered = true;
+                }
+                return;
+            }
+
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            const ms = Math.floor((diff % 1000) / 10);
+
+            document.getElementById('m-hours').innerText = hours.toString().padStart(2, '0');
+            document.getElementById('m-minutes').innerText = minutes.toString().padStart(2, '0');
+            document.getElementById('m-seconds').innerText = seconds.toString().padStart(2, '0');
+            document.getElementById('m-ms').innerText = ms.toString().padStart(2, '0');
+        }
+        setInterval(updateMidnightTimer, 50);
+
+        function triggerFireworks() {
+            var duration = 6 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const text = document.getElementById('modal-text');
+            
+            if(type === 'manco') {
+                text.innerHTML = "💖 <br><br>Anche se siamo distanti per un attimo, un pensiero per te c'è sempre. Mi manchi più di quanto riesca a spiegare a parole, bimba mia!";
+            } else if(type === 'sorriso') {
+                text.innerHTML = "😂 <br><br><i>'Guarda, ti giuro che non ho mai contato mentre camminavo!'</i> <br><br>Spero di averti fatto strappare un sorriso, piccola mia! ❤️";
+            } else if(type === 'mezzanotte') {
+                text.innerHTML = "✨ <b>AUGURI PICCOLA MIA!</b> ✨<br><br>È scoccata mezzanotte ed è ufficialmente il tuo momento. Spero che questo piccolo gesto ti faccia capire quanto tu sia unica e speciale per me. Buonanotte e ancora tantissimi auguri! ❤️";
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
